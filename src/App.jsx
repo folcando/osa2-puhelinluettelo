@@ -1,5 +1,43 @@
 import { useState } from 'react'
 
+const FilterForm = ({nameFilter, onChange}) => {
+  return (
+    <div>
+        filter shown with <input value={nameFilter} onChange={onChange} />
+    </div>
+  )
+}
+
+const NewPersonForm = ({addPerson, newName, setNewName, newNumber, setNewNumber}) => {
+  return (
+    <form onSubmit={(addPerson)}>
+        <div>
+          name: <input value={(newName)} onChange={(event) => setNewName(event.target.value)}/>
+          number: <input value={(newNumber)} onChange={(event) => setNewNumber(event.target.value)} />
+        </div>
+        <div>
+          <button type="submit">add</button>
+        </div>
+    </form>
+  )
+}
+
+const Numbers = ({persons, nameFilter}) => {
+
+  const personsFiltered = persons.filter(
+    p => p.name.toLowerCase().includes( nameFilter.toLowerCase() )
+  )
+
+  return (
+    <div>
+      <h2>Numbers</h2>
+      <ul>
+          {personsFiltered.map(p => <li key={(p.name)}>{p.name}: {p.number}</li>)}
+      </ul>
+    </div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([
     { name: 'Arto Hellas', number: '040-123456' },
@@ -13,7 +51,6 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
-    
     if (persons.filter(p => p.name === newName).length === 0) {
       const newPerson = {name: newName, number: newNumber}
       setPersons(persons.concat(newPerson))
@@ -22,40 +59,20 @@ const App = () => {
     }
   }
 
-  const personsFiltered = persons.filter(
-    p => p.name.toLowerCase().includes( nameFilter.toLowerCase() )
-  )
-
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
 
-      <div>
-        filter shown with <input value={nameFilter} onChange={(event) => setNameFilter(event.target.value)}></input>
-      </div>
+      <FilterForm nameFilter={nameFilter} onChange={(event) => setNameFilter(event.target.value)} />
+      <NewPersonForm 
+        addPerson={addPerson} 
+        newName={newName} setNewName={setNewName}
+        newNumber={newNumber} setNewNumber={setNewNumber}
+      />
 
-      <form onSubmit={(addPerson)}>
-
-        <div>
-          name: <input value={(newName)} onChange={(event) => setNewName(event.target.value)}/>
-          number: <input value={(newNumber)} onChange={(event) => setNewNumber(event.target.value)} />
-        </div>
-
-        <div>
-          <button type="submit">add</button>
-        </div>
-
-      </form>
-
-      <h2>Numbers</h2>
-      
-      <ul>
-        {personsFiltered.map(p => <li key={(p.name)}>{p.name}: {p.number}</li>)}
-      </ul>
-      
+      <Numbers persons={persons} nameFilter={nameFilter}/>
     </div>
   )
-
 }
 
 export default App
