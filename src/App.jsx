@@ -26,11 +26,16 @@ const NewPersonForm = ({addPerson, newName, setNewName, newNumber, setNewNumber}
 
 const NumbersEntry = ({name, number, id, persons, setPersons}) => {
   const deleteEntry = () => {
+    /*
     personService.remove(id).then(response => {
       setPersons(persons.filter(p => p.id !== id))
     })
+      */
+    personService.remove(id)
+      .then(response => {
+        setPersons(persons.filter(p => p.id !== id))
+      })
   }
-
   return (
     <li>
       {name}: {number} <button onClick={deleteEntry}>delete</button>
@@ -67,8 +72,8 @@ const App = () => {
 
   useEffect(() => {
     personService.getAll()
-      .then(response => {
-        setPersons(response.data)
+      .then((response) => {
+        setPersons(response)
       })
   }, [])
 
@@ -77,12 +82,12 @@ const App = () => {
     if (persons.filter(p => p.name.toLowerCase() === newName.toLowerCase()).length === 0) {
       const newPerson = {name: newName, number: newNumber, id: (persons.length + 1).toString()}
 
-     personService.create(newPerson)
-      .then(response => {
-        setPersons(persons.concat(response.data))
-        setNewName('')
-        setNewNumber('')
-      })
+      personService.create(newPerson)
+        .then(response => {
+          setPersons(persons.concat(response))
+          setNewName('')
+          setNewNumber('')
+        })
 
     } else {
       alert(`${newName} is already added to phonebook`)
