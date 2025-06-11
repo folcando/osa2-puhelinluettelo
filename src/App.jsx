@@ -24,8 +24,21 @@ const NewPersonForm = ({addPerson, newName, setNewName, newNumber, setNewNumber}
   )
 }
 
-const Numbers = ({persons, nameFilter}) => {
+const NumbersEntry = ({name, number, id, persons, setPersons}) => {
+  const deleteEntry = () => {
+    personService.remove(id).then(response => {
+      setPersons(persons.filter(p => p.id !== id))
+    })
+  }
 
+  return (
+    <li>
+      {name}: {number} <button onClick={deleteEntry}>delete</button>
+    </li>
+  )
+}
+
+const Numbers = ({persons, nameFilter, setPersons}) => {
   const personsFiltered = persons.filter(
     p => p.name.toLowerCase().includes( nameFilter.toLowerCase() )
   )
@@ -34,7 +47,13 @@ const Numbers = ({persons, nameFilter}) => {
     <div>
       <h2>Numbers</h2>
       <ul>
-          {personsFiltered.map(p => <li key={(p.name)}>{p.name}: {p.number}</li>)}
+          {personsFiltered.map(p => 
+            <NumbersEntry 
+              key={p.name} 
+              name={p.name} number={p.number} id={p.id} 
+              persons={persons}
+              setPersons={setPersons} />
+          )}
       </ul>
     </div>
   )
@@ -56,8 +75,8 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
     if (persons.filter(p => p.name.toLowerCase() === newName.toLowerCase()).length === 0) {
-      const newPerson = {name: newName, number: newNumber, id: persons.length + 1}
-      
+      const newPerson = {name: newName, number: newNumber, id: (persons.length + 1).toString()}
+
      personService.create(newPerson)
       .then(response => {
         setPersons(persons.concat(response.data))
@@ -81,7 +100,7 @@ const App = () => {
         newNumber={newNumber} setNewNumber={setNewNumber}
       />
 
-      <Numbers persons={persons} nameFilter={nameFilter}/>
+      <Numbers persons={persons} nameFilter={nameFilter} setPersons={setPersons}/>
     </div>
   )
 }
