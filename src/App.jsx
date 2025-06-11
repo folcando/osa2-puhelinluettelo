@@ -26,16 +26,12 @@ const NewPersonForm = ({addPerson, newName, setNewName, newNumber, setNewNumber}
 
 const NumbersEntry = ({name, number, id, persons, setPersons}) => {
   const deleteEntry = () => {
-    /*
-    personService.remove(id).then(response => {
-      setPersons(persons.filter(p => p.id !== id))
-    })
-      */
-    personService.remove(id)
-      .then(response => {
-        setPersons(persons.filter(p => p.id !== id))
-      })
+    if (window.confirm('remove person?')) {
+      personService.remove(id)
+        .then(response => setPersons(persons.filter(p => p.id !== id)))
+    }
   }
+
   return (
     <li>
       {name}: {number} <button onClick={deleteEntry}>delete</button>
@@ -79,18 +75,34 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
-    if (persons.filter(p => p.name.toLowerCase() === newName.toLowerCase()).length === 0) {
-      const newPerson = {name: newName, number: newNumber, id: (persons.length + 1).toString()}
 
+    const foundPerson = persons.find(p => p.name.toLowerCase() === newName.toLowerCase())
+
+    if (foundPerson === undefined) {
+      const newPerson = {name: newName, number: newNumber, id: (persons.length + 1).toString()}
       personService.create(newPerson)
         .then(response => {
           setPersons(persons.concat(response))
           setNewName('')
           setNewNumber('')
         })
+      return
+    } 
+    if (window.confirm(`${newName} is already added to phonebook, replace their number?`)) {
+      const newPerson = {...foundPerson, number: newNumber}
 
-    } else {
-      alert(`${newName} is already added to phonebook`)
+      personService.update(foundPerson.id, newPerson)
+
+      const updatedPersons = persons.map(p => {
+        if (p.id !== foundPerson.id) {
+            return p
+          } else {
+            return newPerson
+          }
+      })
+
+      setPersons(updatedPersons)
+      
     }
   }
 
