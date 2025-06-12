@@ -4,18 +4,11 @@ import personService from './services/persons'
 
 import Message from './components/Message'
 
-const NumbersEntry = ({name, number, id, persons, setPersons, setMessage}) => {
+const NumbersEntry = ({name, number, id, persons, setPersons}) => {
   const deleteEntry = () => {
     if (window.confirm('remove person?')) {
       personService.remove(id)
-        .then(response => {
-          setPersons(persons.filter( p => p.id !== id ))
-          setMessage({text:'deleted number', success:true })
-          setTimeout(() => {
-            setMessage({text: '', success: undefined})
-          }, 5000)
-
-        } )
+        .then(response => setPersons(persons.filter(p => p.id !== id)))
     }
   }
 
@@ -26,7 +19,7 @@ const NumbersEntry = ({name, number, id, persons, setPersons, setMessage}) => {
   )
 }
 
-const Numbers = ({persons, nameFilter, setPersons, setMessage}) => {
+const Numbers = ({persons, nameFilter, setPersons}) => {
   const personsFiltered = persons.filter(
     p => p.name.toLowerCase().includes( nameFilter.toLowerCase() )
   )
@@ -40,8 +33,7 @@ const Numbers = ({persons, nameFilter, setPersons, setMessage}) => {
               key={p.name} 
               name={p.name} number={p.number} id={p.id} 
               persons={persons}
-              setPersons={setPersons} 
-              setMessage={setMessage} />
+              setPersons={setPersons} />
           )}
       </ul>
     </div>
@@ -111,10 +103,6 @@ const App = () => {
       const newPerson = {...foundPerson, number: newNumber}
 
       personService.update(foundPerson.id, newPerson)
-      setMessage({text: 'replaced old number', success: true})
-      setTimeout(() => {
-        setMessage({text: '', success: undefined})
-      }, 5000)
 
       const updatedPersons = persons.map(p => {
         if (p.id !== foundPerson.id) {
@@ -142,7 +130,7 @@ const App = () => {
         newNumber={newNumber} setNewNumber={setNewNumber}
       />
 
-      <Numbers persons={persons} nameFilter={nameFilter} setPersons={setPersons} setMessage={setMessage}/>
+      <Numbers persons={persons} nameFilter={nameFilter} setPersons={setPersons}/>
     </div>
   )
 }
