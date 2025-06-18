@@ -10,11 +10,10 @@ const NumbersEntry = ({name, number, id, persons, setPersons, setMessage}) => {
       personService.remove(id)
         .then(response => {
           setPersons(persons.filter( p => p.id !== id ))
-          setMessage({text:'deleted number', success:true })
+          setMessage({text:`deleted ${name}`, success:true })
           setTimeout(() => {
             setMessage({text: '', success: undefined})
           }, 5000)
-
         } )
     }
   }
@@ -99,7 +98,7 @@ const App = () => {
           setNewNumber('')
         })
 
-        setMessage({text: 'added person', success: true})
+        setMessage({text: `Added ${newName} (${newNumber})`, success: true})
         setTimeout(() => {
           setMessage({text: '', success: undefined})
         }, 5000)
@@ -110,11 +109,19 @@ const App = () => {
     if (window.confirm(`${newName} is already added to phonebook, replace their number?`)) {
       const newPerson = {...foundPerson, number: newNumber}
 
-      personService.update(foundPerson.id, newPerson)
+     personService.update(foundPerson.id, newPerson)
+     .then(returnedPerson => {
+      setPersons(persons.map(p => p.id === returnedPerson.id ? returnedPerson : p))
+
       setMessage({text: 'replaced old number', success: true})
       setTimeout(() => {
         setMessage({text: '', success: undefined})
       }, 5000)
+     })
+     .catch(error => {
+      setMessage({text: `Information of ${newName} has already been removed from server`, success: false})
+      setPersons(persons.filter(p => p.id !== foundPerson.id))
+     })
 
       const updatedPersons = persons.map(p => {
         if (p.id !== foundPerson.id) {
@@ -123,9 +130,7 @@ const App = () => {
             return newPerson
           }
       })
-
-      setPersons(updatedPersons)
-      
+      setPersons(persons.filter(p => p.id != foundPerson.id)) 
     }
   }
 
